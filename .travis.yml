@@ -5,6 +5,7 @@ go:
 after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+    CGO_ENABLED=0 go build;
     docker build -t fjorgemota/chatmeterbot .;
     docker push fjorgemota/chatmeterbot;
     fi
