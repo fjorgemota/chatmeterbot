@@ -1,4 +1,6 @@
-# ChatMeterBot
+# ChatMeterBot 
+
+[![Build Status](https://travis-ci.org/fjorgemota/chatmeterbot.svg?branch=master)](https://travis-ci.org/fjorgemota/chatmeterbot)
 
 This is a bot, created for usage with Telegram, that automatically sends a sticker 'SILENCE' after 10 minutes of inactivity, and a sticker 'RIP CHAT' after 30 minutes of activity.
 
