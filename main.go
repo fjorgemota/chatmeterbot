@@ -63,6 +63,9 @@ func broadcast(w *sync.WaitGroup, source <-chan tgbotapi.Update, dest ...chan tg
 func main() {
 	var updates <-chan tgbotapi.Update
 	token := os.Getenv("BOT_TOKEN")
+	if len(token) == 0 {
+		log.Fatal("You need to define a BOT_TOKEN environment variable")
+	}
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err == nil {
 		log.Printf("Authorized on account %s", bot.Self.UserName)
