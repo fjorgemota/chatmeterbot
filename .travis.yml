@@ -6,7 +6,7 @@ after_success:
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
     CGO_ENABLED=0 go build;
-    cp -Rvf /etc/ssl/certs/ca-certificates.crt .
+    cp -Rvf /etc/ssl/certs/ca-certificates.crt .;
     docker build -t fjorgemota/chatmeterbot .;
     docker push fjorgemota/chatmeterbot;
     fi
