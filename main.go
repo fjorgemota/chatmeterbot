@@ -13,25 +13,32 @@ func shouldRegisterMessage(bot *tgbotapi.BotAPI, update tgbotapi.Update) bool {
 	return update.Message != nil && update.Message.From.ID != bot.Self.ID && (update.Message.Chat.IsGroup() || update.Message.Chat.IsSuperGroup())
 }
 
-func ticker(bot *tgbotapi.BotAPI, stickerID string, interval time.Duration, updates <-chan tgbotapi.Update, w *sync.WaitGroup) error {
+func ticker(bot *tgbotapi.BotAPI, stickerID string, interval time.Duration, updates <-chan tgbotapi.Update, w *sync.WaitGroup) {
 	log.Printf("Starting ticker..")
+	defer log.Println("Finishing ticker")
+	defer w.Done()
 	groups := make(map[int64]time.Time)
+	counters := make(map[int64]int)
 	tick := time.Tick(interval)
-	run := true
-	for run {
+Run:
+	for {
 		select {
 		case update, ok := <-updates:
-			run = ok
+			if !ok {
+				break Run
+			}
 			if !shouldRegisterMessage(bot, update) {
 				continue
 			}
 			log.Printf("Received message on %d\n", update.Message.Chat.ID)
 			groups[update.Message.Chat.ID] = update.Message.Time().Add(interval)
+			counters[update.Message.Chat.ID]++
 		case <-tick:
 			now := time.Now()
 			log.Println("Processing tick..")
 			for chatID, lastMessage := range groups {
-				if lastMessage.After(now) {
+				counters[chatID] /= 2
+				if lastMessage.After(now) || counters[chatID] < 50 {
 					continue
 				}
 				log.Printf("Sending sticker to %d\n", chatID)
@@ -41,25 +48,12 @@ func ticker(bot *tgbotapi.BotAPI, stickerID string, interval time.Duration, upda
 					log.Print(err)
 				}
 				delete(groups, chatID)
+				delete(counters, chatID)
 			}
 		}
 	}
-	log.Println("Finishing ticker")
-	w.Done()
-	return nil
 }
 
-func broadcast(w *sync.WaitGroup, source <-chan tgbotapi.Update, dest ...chan tgbotapi.Update) {
-	for msg := range source {
-		for _, target := range dest {
-			target <- msg
-		}
-	}
-	for _, target := range dest {
-		close(target)
-	}
-	w.Done()
-}
 func main() {
 	var updates <-chan tgbotapi.Update
 	token := os.Getenv("BOT_TOKEN")
