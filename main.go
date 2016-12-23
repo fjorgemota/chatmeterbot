@@ -37,8 +37,7 @@ Run:
 			now := time.Now()
 			log.Println("Processing tick..")
 			for chatID, lastMessage := range groups {
-				counters[chatID] /= 2
-				if lastMessage.After(now) || counters[chatID] < int(interval/time.Minute) {
+				if lastMessage.After(now) || counters[chatID] < int((interval/time.Minute)*2) {
 					continue
 				}
 				log.Printf("Sending sticker to %d\n", chatID)
