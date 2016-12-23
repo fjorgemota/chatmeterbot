@@ -30,9 +30,9 @@ Run:
 			if !shouldRegisterMessage(bot, update) {
 				continue
 			}
-			log.Printf("Received message on %d\n", update.Message.Chat.ID)
 			groups[update.Message.Chat.ID] = update.Message.Time().Add(interval)
 			counters[update.Message.Chat.ID]++
+			log.Printf("Received message on %d (%d messages counted)\n", update.Message.Chat.ID, counters[update.Message.Chat.ID])
 		case <-tick:
 			now := time.Now()
 			log.Println("Processing tick..")
@@ -64,7 +64,7 @@ func main() {
 	if err == nil {
 		log.Printf("Authorized on account %s", bot.Self.UserName)
 		u := tgbotapi.NewUpdate(0)
-		u.Timeout = 3600
+		u.Timeout = 86400
 		updates, err = bot.GetUpdatesChan(u)
 	}
 	if err != nil {
